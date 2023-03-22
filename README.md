@@ -9,6 +9,13 @@ Working, but not a well behaved component. Hacked together from https://github.c
 Enables the component. This will display a fire animation. Pressing the A button will play an i2s sample and switch the display to landscape. Pressing the B button will switch to portrait
 
 ```yaml
+external_components:
+  - source:
+      type: git
+      url: https://github.com/hackcasual/esphome-galactic-unicorn
+      ref: main
+    components: [ esphome_galactic_unicorn ]
+
 esphome_galactic_unicorn:
   id: empty_component_1
 ```
