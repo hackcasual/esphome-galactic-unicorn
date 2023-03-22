@@ -1,7 +1,6 @@
 #pragma once
 
 #include "hardware/pio.h"
-#include "pico_graphics.hpp"
 #include "pico_synth.hpp"
 
 namespace pimoroni {
@@ -93,8 +92,6 @@ namespace pimoroni {
     static inline void pio_program_init(PIO pio, uint sm, uint offset);
 
     void clear();
-
-    void update(PicoGraphics *graphics);
 
     void set_brightness(float value);
     float get_brightness();
