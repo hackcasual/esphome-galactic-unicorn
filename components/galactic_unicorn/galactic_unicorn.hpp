@@ -120,3 +120,80 @@ namespace pimoroni {
   };
 
 }
+
+#include "esphome/core/macros.h"
+#include "esphome/core/component.h"
+#include "esphome/core/helpers.h"
+#include "esphome/core/color.h"
+#include "esphome/components/light/light_output.h"
+#include "esphome/components/light/addressable_light.h"
+
+#include "esphome/core/log.h"
+static const char *TAG = "galactic_unicorn.component";
+
+namespace esphome {
+namespace galactic_unicorn {
+
+class GalacticUnicornOutput : public light::AddressableLight {
+ public:
+  // ========== INTERNAL METHODS ==========
+  void setup() override {
+    this->effect_data_ = new uint8_t[this->size()];  // NOLINT
+    this->pixelbuf = new uint8_t[4 * this->size()];
+    this->unicorn_dev = new pimoroni::GalacticUnicorn();
+    this->unicorn_dev->init();
+    this->unicorn_dev->set_brightness(0.5);
+    this->unicorn_dev->set_pixel(5, 5, 255, 0, 0);
+
+    for (int i = 0; i < this->size(); i++) {
+      (*this)[i] = Color(0, 0, 0, 0);
+    }
+  }
+
+  void write_state(light::LightState *state) override {
+    ESP_LOGD(TAG, "Write_state");
+    
+    uint index = 0;
+    
+    for (uint8_t r = 0; r < 11; r++) {
+        for (uint8_t c = 0; c < 53; c++) {
+            this->unicorn_dev->set_pixel(c, r, this->pixelbuf[index], this->pixelbuf[index + 1], this->pixelbuf[index + 2]);
+            index+=4;
+        }
+    }
+    
+    this->mark_shown_();
+  }
+
+
+  int32_t size() const override { return 583; }
+  light::LightTraits get_traits() override {
+    auto traits = light::LightTraits();
+    traits.set_supported_color_modes({light::ColorMode::RGB});
+    return traits;
+  }
+  
+  void clear_effect_data() override {
+  }
+ protected:
+
+  light::ESPColorView get_view_internal(int32_t index) const override {  // NOLINT
+    uint8_t *base = this->pixelbuf + 4ULL * index;
+    
+    //if (index == 5) {
+    //    ESP_LOGD(TAG, "Getting good old 5 %d %d %d", base[0], base[1], base[2]);
+    //}
+
+    return light::ESPColorView(base, base + 1, base + 2,
+                               nullptr, this->effect_data_ + index, &this->correction_);
+  } 
+  private:
+      uint8_t *effect_data_{nullptr};
+      uint8_t rgb_offsets_[4]{0, 1, 2, 3};
+      uint8_t *pixelbuf{nullptr};
+      pimoroni::GalacticUnicorn* unicorn_dev{nullptr};
+};
+
+
+}  // namespace empty_component
+}  // namespace esphome

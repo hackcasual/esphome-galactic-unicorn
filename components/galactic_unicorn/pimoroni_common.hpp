@@ -74,7 +74,7 @@ namespace pimoroni {
       REVERSED_DIR  = 1,
     };
 
-    inline uint32_t millis() {
+    inline uint32_t millis2() {
       return to_ms_since_boot(get_absolute_time());
     }
 

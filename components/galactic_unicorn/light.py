@@ -15,22 +15,21 @@ from esphome.const import (
 )
 
 galactic_unicorn_ns = cg.esphome_ns.namespace("galactic_unicorn")
-GalacticUnicornOutputBase = galactic_unicorn_ns.class_(
-    "GalacticUnicornOutputBase", light.AddressableLight
-)
-
 GalacticUnicornOutput = galactic_unicorn_ns.class_(
-    "GalacticUnicornOutput", GalacticUnicornOutputBase
+    "GalacticUnicornOutput", light.AddressableLight
 )
 
 
-CONFIG_SCHEMA = cv.All(
-    cv.only_with_arduino,
-    light.ADDRESSABLE_LIGHT_SCHEMA.extend(
+
+CONFIG_SCHEMA = light.ADDRESSABLE_LIGHT_SCHEMA.extend(
         {
-            cv.GenerateID(CONF_OUTPUT_ID): cv.declare_id(GalacticUnicornOutputBase),
-            cv.Optional(CONF_INVERT, default="no"): cv.boolean,
-            cv.Required(CONF_NUM_LEDS): cv.positive_not_null_int,
+            cv.GenerateID(CONF_OUTPUT_ID): cv.declare_id(GalacticUnicornOutput)
         }
-    ).extend(cv.COMPONENT_SCHEMA),
-)
+    ).extend(cv.COMPONENT_SCHEMA)
+
+async def to_code(config):
+    out_type = GalacticUnicornOutput
+    rhs = out_type.new()
+    var = cg.Pvariable(config[CONF_OUTPUT_ID], rhs, out_type)
+    await cg.register_component(var, config)
+    await light.register_light(var, config)
